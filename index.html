@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A2A Computers | Enterprise Business Suite</title>
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SheetJS Library for Excel Database Operations -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Supabase Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ================= GLOWING BACKGROUND ANIMATED BLOBS ================= -->
+  <div class="bg-blob blob1"></div>
+  <div class="bg-blob blob2"></div>
+  <div class="bg-blob blob3"></div>
+
+  <!-- ================= PRINTING FRAME ================= -->
+  <div id="print-invoice-area" class="print-invoice-area"></div>
+
+  <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ================= AUTHENTICATION OVERLAY ================= -->
+  <div id="auth-overlay" class="modal-overlay" style="background: var(--bg-gradient); z-index: 9999;">
+    <div class="glass-card modal-card auth-card" style="box-shadow: 0 20px 50px rgba(56, 1, 1, 0.5); max-width: 900px; width: 90%;">
+
+      <!-- Left side: Hero banner graphic -->
+      <div class="auth-hero">
+        <div class="auth-hero-content">
+          <div class="logo-icon" style="width: 50px; height: 50px; font-size: 1.8rem; margin-bottom: 15px;">A2A</div>
+          <h2 style="font-size: 1.85rem; font-weight: 800; line-height: 1.2;">A2A Computers</h2>
+          <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 8px;">Hardware Sales, Diagnostic Repairs & Maintenance Operations Console.</p>
+        </div>
+      </div>
+
+      <!-- Right side: Authentication Form views -->
+      <div class="auth-form-container">
+        
+        <!-- Profile Select View -->
+        <div id="auth-profile-view">
+          <div style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">Select Profile</h2>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">Choose your staff account to sign in</p>
+          </div>
+          
+          <div class="profile-grid" id="profile-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+            <!-- Loaded dynamically in app.js -->
+          </div>
+
+          <!-- Password input drawer -->
+          <div id="profile-password-box" style="display: none; border-top: 1px dashed var(--glass-border); padding-top: 20px; animation: cardEntrance 0.3s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span id="selected-profile-name" style="font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan);">Pooja Patel</span>
+              <button type="button" class="btn btn-secondary" id="back-profiles-btn" style="padding: 4px 8px; font-size: 0.7rem;"><i class="fa-solid fa-chevron-left"></i> Change Profile</button>
+            </div>
+            <form id="profile-login-form">
+              <input type="hidden" id="profile-login-username">
+              <div class="form-group" style="margin-bottom: 15px;">
+                <label for="profile-login-password">Access Code / Password</label>
+                <input type="password" id="profile-login-password" placeholder="••••••••" required>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px;">Sign In</button>
+            </form>
+          </div>
+
+          <div style="text-align: center; margin-top: 15px; border-top: 1px solid var(--glass-border); padding-top: 12px;">
+            <a href="#" id="use-standard-login" style="font-size: 0.75rem; color: var(--text-secondary); text-decoration: none;"><i class="fa-solid fa-keyboard"></i> Use standard credentials</a>
+          </div>
+        </div>
+
+        <!-- Login Form View (Hidden by default) -->
+        <div id="auth-login-view" style="display: none;">
+          <div style="margin-bottom: 24px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700;">Sign In</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Access the A2A management console</p>
+          </div>
+          
+          <form id="login-form">
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+              <div class="form-group">
+                <label for="login-username">Username or Email</label>
+                <input type="text" id="login-username" placeholder="e.g. admin or sales" autocomplete="username">
+              </div>
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 20px; font-size: 0.75rem;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" style="width: auto;"> Remember me
+              </label>
+              <a href="#" id="go-forgot" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Sign In</button>
+          </form>
+
+          <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: var(--text-secondary);">
+            Go back to <a href="#" id="back-profiles-btn-standard" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;">Profiles selection</a>
+          </div>
+        </div>
+
+        <!-- Forgot Password View -->
+        <div id="auth-forgot-view" style="display: none;">
+          <div style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700;">Reset Password</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Enter your email to receive recovery instructions</p>
+          </div>
+          <form id="forgot-form">
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="forgot-email">Registered Email</label>
+              <input type="email" id="forgot-email" placeholder="email@a2acomputers.com">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Send Reset Link</button>
+          </form>
+          <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: var(--text-secondary);">
+            Remember your details? <a href="#" id="back-login" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;">Go to Login</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= MAIN SYSTEM ROOT ================= -->
+  <div id="app-container">
+
+    <!-- 1. SIDEBAR NAVIGATION -->
+    <aside id="sidebar-aside">
+      <div class="sidebar-logo">
+        <div class="logo-icon">A2A</div>
+        <span class="logo-text">A2A COMPUTERS</span>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-item active" data-target="overview" id="menu-overview" onclick="app.navigateTo('overview')"><i class="fa-solid fa-gauge-high"></i>Overview</li>
+        <li class="menu-item" data-target="sales" id="menu-sales" onclick="app.navigateTo('sales')"><i class="fa-solid fa-cart-shopping"></i>POS & Sales</li>
+        <li class="menu-item" data-target="inventory" id="menu-inventory" onclick="app.navigateTo('inventory')"><i class="fa-solid fa-boxes-stacked"></i>Inventory</li>
+        <li class="menu-item" data-target="repairs" id="menu-repairs" onclick="app.navigateTo('repairs')"><i class="fa-solid fa-screwdriver-wrench"></i>Repair Center</li>
+        <li class="menu-item" data-target="employees" id="menu-employees" onclick="app.navigateTo('employees')"><i class="fa-solid fa-users-gear"></i>Employees</li>
+        <li class="menu-item" data-target="attendance" id="menu-attendance" onclick="app.navigateTo('attendance')"><i class="fa-solid fa-calendar-check"></i>Attendance</li>
+        <li class="menu-item" data-target="salaries" id="menu-salaries" onclick="app.navigateTo('salaries')"><i class="fa-solid fa-indian-rupee-sign"></i>Salaries</li>
+        <li class="menu-item" data-target="analytics" id="menu-analytics" onclick="app.navigateTo('analytics')"><i class="fa-solid fa-chart-line"></i>Ratio Analytics</li>
+        <li class="menu-item" data-target="settings" id="menu-settings" onclick="app.navigateTo('settings')"><i class="fa-solid fa-sliders"></i>Settings</li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-badge">
+          <div class="user-avatar" id="avatar-display">A</div>
+          <div class="user-info">
+            <span class="user-name" id="username-display">Loading...</span>
+            <span class="user-role" id="userrole-display">Role Loading</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary" id="logout-btn" style="width: 100%; padding: 8px;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </aside>
+
+    <!-- 2. WORKSPACE -->
+    <main>
+      <!-- HEADER -->
+      <header>
+        <div class="nav-left">
+          <div class="page-title-container">
+            <h1 id="active-panel-title">Overview</h1>
+          </div>
+        </div>
+        <div class="nav-right">
+          
+          <!-- Interactive Excel Database Sync Controls -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="btn btn-secondary" id="quick-export-excel-btn" onclick="window.Utils.exportDatabaseToExcel()" style="padding: 6px 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; border-color: rgba(6, 182, 212, 0.4); color: var(--accent-cyan);" title="Export entire database as A2A_Computers_Database.xlsx">
+              <i class="fa-solid fa-file-excel"></i> Export Excel
+            </button>
+            <label for="header-excel-file-input" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; cursor: pointer; border-color: var(--glass-border);" title="Import & Sync local Excel file">
+              <i class="fa-solid fa-file-import"></i> Sync Excel File
+              <input type="file" id="header-excel-file-input" accept=".xlsx, .xls" style="display: none;" onchange="app.handleHeaderExcelUpload(this)">
+            </label>
+          </div>
+
+          <div class="clock-widget" id="realtime-clock">Loading Clock...</div>
+          
+          <button class="btn btn-secondary" id="employee-logout-btn" style="padding: 6px 12px; font-size: 0.75rem; display: none; align-items: center; gap: 6px; border-color: var(--glass-border);">
+            <i class="fa-solid fa-right-from-bracket"></i> Switch Profile
+          </button>
+          
+          <!-- Theme Toggle -->
+          <button class="nav-btn" id="theme-toggle-btn" title="Toggle Dark/Light Theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+
+          <!-- Notifications Alert Toggle -->
+          <button class="nav-btn" id="notif-bell-btn">
+            <i class="fa-solid fa-bell"></i>
+            <span class="badge-dot" id="notif-dot" style="display: none;"></span>
+          </button>
+
+          <!-- Notification Dropdown -->
+          <div class="dropdown-menu" id="notif-dropdown">
+            <div class="dropdown-header">
+              <span>Notifications</span>
+              <span style="font-size: 0.75rem; color: var(--accent-cyan); cursor: pointer;" id="clear-notifs-btn">Mark all read</span>
+            </div>
+            <div class="notif-dropdown-list" id="notif-dropdown-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ================= PANELS ================= -->
+
+      <!-- PANELS SECTION 1: OVERVIEW -->
+      <section class="view-section active" id="view-overview">
+        <!-- Showcase Banner -->
+        <div class="glass-card overview-banner">
+          <h2 style="font-size: 1.75rem; font-weight: 800; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Welcome back, <span id="welcome-name">User</span></h2>
+          <p style="color: #cbd5e1; font-size: 0.95rem; margin-top: 8px; max-width: 600px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">A2A Computers database is operational. Your service queue is optimized, and stock levels are healthy.</p>
+        </div>
+
+        <!-- Overview stats Row -->
+        <div class="overview-grid">
+          <div class="glass-card stat-card cyan">
+            <div>
+              <div class="stat-label">Total Sales</div>
+              <div class="stat-value" id="stat-sales-qty">0</div>
+              <div class="stat-desc"><span class="positive">+12.4%</span> this month</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+          </div>
+          <div class="glass-card stat-card purple">
+            <div>
+              <div class="stat-label">Total Revenue</div>
+              <div class="stat-value" id="stat-revenue">₹0</div>
+              <div class="stat-desc"><span class="positive">+18.2%</span> monthly growth</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+          </div>
+          <div class="glass-card stat-card green">
+            <div>
+              <div class="stat-label">Repairs Finished</div>
+              <div class="stat-value" id="stat-repairs-completed">0</div>
+              <div class="stat-desc">Turnaround <span class="positive">1.2 Days</span></div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+          </div>
+          <div class="glass-card stat-card orange">
+            <div>
+              <div class="stat-label">Active Repairs</div>
+              <div class="stat-value" id="stat-repairs-pending">0</div>
+              <div class="stat-desc">Awaiting allocation</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          </div>
+        </div>
+
+        <!-- AI Insight Board -->
+        <div class="ai-insight-banner">
+          <div class="ai-icon"><i class="fa-solid fa-brain"></i></div>
+          <div class="ai-body" id="overview-ai-insights">
+            <h4>A2A Predictor Agent <span>AI Active</span></h4>
+            <p>Scanning datasets to generate real-time recommendations...</p>
+          </div>
+        </div>
+
+        <!-- Graphics and Activity Row -->
+        <div class="analytics-grid">
+          <!-- Sales Chart Card -->
+          <div class="glass-card">
+            <div class="section-header">
+              <h2><i class="fa-solid fa-chart-line"></i> Revenue Trends</h2>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Historical projection</span>
+            </div>
+            <div class="chart-container" id="overview-revenue-chart"></div>
+          </div>
+          
+          <!-- Product Categories Ratio -->
+          <div class="glass-card">
+            <div class="section-header">
+              <h2><i class="fa-solid fa-chart-pie"></i> Inventory Share</h2>
+            </div>
+            <div class="chart-container" id="overview-category-chart"></div>
+          </div>
+        </div>
+
+        <!-- Recent Actions Grid -->
+        <div class="recent-grid">
+          <!-- Recent Sales Card -->
+          <div class="glass-card">
+            <div class="section-header">
+              <h2>Recent Sales</h2>
+              <button class="btn btn-secondary btn-icon" onclick="app.switchTab('sales')"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Invoice</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Customer</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-sales-table">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Active Check-Ins or Repairs -->
+          <div class="glass-card">
+            <div class="section-header">
+              <h2>Recent Service Activities</h2>
+              <button class="btn btn-secondary btn-icon" onclick="app.switchTab('repairs')"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="activity-list" id="overview-activity-feed">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 2: POS & SALES LEDGER -->
+      <section class="view-section" id="view-sales">
+        <!-- Sub-Tabs: POS Terminal vs Sales History -->
+        <div style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+          <button class="btn btn-primary" id="subtab-pos-btn" style="padding: 8px 16px;"><i class="fa-solid fa-cash-register"></i> POS checkout</button>
+          <button class="btn btn-secondary" id="subtab-ledger-btn" style="padding: 8px 16px;"><i class="fa-solid fa-receipt"></i> Historical Sales Ledger</button>
+        </div>
+
+        <!-- VIEW A: POS CHECKOUT TERMINAL -->
+        <div id="sales-pos-view" class="analytics-grid" style="grid-template-columns: 1.5fr 1fr; gap: 20px;">
+          <!-- Left side: Product catalog grid -->
+          <div class="glass-card" style="display: flex; flex-direction: column; gap: 15px;">
+            <div class="action-bar" style="padding: 0; margin-bottom: 10px;">
+              <div class="search-wrapper" style="max-width: 250px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="pos-search-input" placeholder="Search catalog...">
+              </div>
+              <select id="pos-cat-filter" style="max-width: 150px; padding: 6px;">
+                <option value="">All Categories</option>
+                <option value="Laptops">Laptops</option>
+                <option value="Desktop PCs">Desktop PCs</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Spare Parts">Spare Parts</option>
+              </select>
+            </div>
+            
+            <!-- Products grid layout -->
+            <div class="pos-product-grid" id="pos-product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; max-height: 480px; overflow-y: auto; padding-right: 5px;">
+              <!-- Loaded dynamically in app.js -->
+            </div>
+          </div>
+
+          <!-- Right side: Active shopping cart -->
+          <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(6, 182, 212, 0.25);">
+            <div>
+              <div class="section-header" style="border-bottom: 1.5px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 15px;">
+                <h2><i class="fa-solid fa-basket-shopping"></i> Shopping Cart</h2>
+                <button class="btn btn-secondary" id="pos-clear-cart" style="padding: 4px 8px; font-size: 0.75rem; color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2);"><i class="fa-solid fa-trash"></i> Clear</button>
+              </div>
+              
+              <!-- Cart Items container -->
+              <div id="pos-cart-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; padding-right: 4px;">
+                <!-- Renders dynamically -->
+              </div>
+            </div>
+
+            <!-- Invoice totals and checkout triggers -->
+            <div style="border-top: 1px solid var(--glass-border); padding-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+              <div class="form-group">
+                <label for="pos-customer-name">Customer Full Name</label>
+                <input type="text" id="pos-customer-name" placeholder="Walk-in Client" value="Walk-in Client">
+              </div>
+              
+              <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label for="pos-discount">Discount (%)</label>
+                  <select id="pos-discount">
+                    <option value="0">0% Discount</option>
+                    <option value="5">5% Off</option>
+                    <option value="10">10% Off</option>
+                    <option value="15">15% Off</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="pos-payment">Payment Method</label>
+                  <select id="pos-payment">
+                    <option value="UPI">UPI</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Net Banking">Net Banking</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Price calculations panel -->
+              <div class="glass-card" style="background: rgba(255,255,255,0.02); padding: 12px; box-shadow: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                <div style="display:flex; justify-content:space-between; color: var(--text-secondary);">
+                  <span>Subtotal:</span>
+                  <span id="pos-subtotal">₹0.00</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; color: var(--text-secondary);">
+                  <span>Discount:</span>
+                  <span id="pos-discount-value" style="color: var(--accent-orange);">-₹0.00</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; color: var(--text-secondary);">
+                  <span>CGST+SGST (18%):</span>
+                  <span id="pos-tax">₹0.00</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-weight:700; border-top: 1px dashed var(--glass-border); padding-top: 6px; font-size: 1.05rem;">
+                  <span>Total Amount:</span>
+                  <span id="pos-total" style="color: var(--accent-cyan);">₹0.00</span>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="pos-checkout-btn" onclick="app.runPOSCheckout()" style="padding: 14px; font-size: 1rem;"><i class="fa-solid fa-circle-check"></i> Complete POS Checkout</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW B: HISTORICAL SALES LEDGER (Hidden by default) -->
+        <div id="sales-ledger-view" style="display: none;">
+          <div class="glass-card">
+            <div class="action-bar">
+              <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="sales-search-input" placeholder="Search sales by product or customer...">
+              </div>
+              <div class="filter-wrapper">
+                <select id="sales-filter-method">
+                  <option value="">All Payments</option>
+                  <option value="Credit Card">Credit Card</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Corporate Invoice">Invoice</option>
+                </select>
+                <button class="btn btn-primary" id="open-add-sale-btn"><i class="fa-solid fa-plus"></i> Manual Sale</button>
+                <button class="btn btn-secondary" id="export-sales-csv"><i class="fa-solid fa-file-csv"></i> Excel</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Invoice ID</th>
+                    <th>Product</th>
+                    <th>Customer</th>
+                    <th>Unit Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                    <th>Payment</th>
+                    <th>Date</th>
+                    <th>Warranty</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-main-table">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 3: INVENTORY -->
+      <section class="view-section" id="view-inventory">
+        <div class="glass-card">
+          <div class="action-bar">
+            <div class="search-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="inventory-search-input" placeholder="Search products by SKU or name...">
+            </div>
+            <div class="filter-wrapper">
+              <select id="inventory-filter-cat">
+                <option value="">All Categories</option>
+                <option value="Laptops">Laptops</option>
+                <option value="Desktop PCs">Desktop PCs</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Spare Parts">Spare Parts</option>
+                <option value="Repair Components">Repair Components</option>
+              </select>
+              <button class="btn btn-primary" id="open-add-prod-btn"><i class="fa-solid fa-plus"></i> Add Product</button>
+              <button class="btn btn-secondary" id="export-inventory-csv"><i class="fa-solid fa-file-excel"></i> Export</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Product Title</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock Levels</th>
+                  <th>Status</th>
+                  <th>Supplier Info</th>
+                  <th>Barcode</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-main-table">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 4: REPAIR CENTER -->
+      <section class="view-section" id="view-repairs">
+        <!-- Live Diagnostics Input Row -->
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-wand-magic-sparkles"></i> AI Service Diagnostician</h2>
+          </div>
+          <div class="form-grid" style="grid-template-columns: 1fr 2fr;">
+            <div class="form-group">
+              <label for="ai-diag-dev">Device Category</label>
+              <select id="ai-diag-dev">
+                <option value="Laptop">Laptop</option>
+                <option value="Desktop PC">Desktop PC</option>
+                <option value="MacBook">MacBook / Apple</option>
+                <option value="Console/Accessories">Accessories / Console</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="ai-diag-desc">Customer Problem Complaint</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="ai-diag-desc" style="flex-grow: 1;" placeholder="e.g. spilled liquid on keyboard, running extremely hot and fans loud, battery draining fast...">
+                <button class="btn btn-primary" id="run-ai-diag-btn"><i class="fa-solid fa-microchip"></i> Analyze Problem</button>
+              </div>
+            </div>
+          </div>
+          <!-- Diagnostic Results Box -->
+          <div id="ai-diagnostic-result" class="glass-card" style="display: none; border-color: var(--accent-cyan); background: rgba(6, 182, 212, 0.02); margin-top: 15px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Sub-Tabs: Kanban Board vs Service Log -->
+        <div style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+          <button class="btn btn-primary" id="subtab-kanban-btn" style="padding: 8px 16px;"><i class="fa-solid fa-rectangle-list"></i> Kanban Workshop Pipeline</button>
+          <button class="btn btn-secondary" id="subtab-repairs-ledger-btn" style="padding: 8px 16px;"><i class="fa-solid fa-table-list"></i> Detailed Repair Ledger</button>
+        </div>
+
+        <!-- VIEW A: KANBAN WORKSHOP PIPELINE -->
+        <div id="repairs-kanban-view" class="kanban-board-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; overflow-x: auto; min-height: 400px;">
+          <!-- 1. Pending Column -->
+          <div class="kanban-column" id="kanban-pending" style="background: rgba(239, 68, 68, 0.02); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: var(--border-radius-md); padding: 12px;">
+            <div class="kanban-column-header" style="display:flex; justify-content:space-between; margin-bottom: 15px; border-bottom: 2px solid var(--accent-red); padding-bottom: 6px;">
+              <span style="font-weight: 700; color: var(--accent-red);"><i class="fa-solid fa-clock-rotate-left"></i> Awaiting Diagnosis</span>
+              <span class="badge red" id="kanban-count-pending">0</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="cards-pending" style="display:flex; flex-direction:column; gap:10px; min-height: 350px;">
+              <!-- Cards here -->
+            </div>
+          </div>
+          
+          <!-- 2. In Progress Column -->
+          <div class="kanban-column" id="kanban-progress" style="background: rgba(245, 158, 11, 0.02); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: var(--border-radius-md); padding: 12px;">
+            <div class="kanban-column-header" style="display:flex; justify-content:space-between; margin-bottom: 15px; border-bottom: 2px solid var(--accent-orange); padding-bottom: 6px;">
+              <span style="font-weight: 700; color: var(--accent-orange);"><i class="fa-solid fa-screwdriver-wrench"></i> Under Repair</span>
+              <span class="badge orange" id="kanban-count-progress">0</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="cards-progress" style="display:flex; flex-direction:column; gap:10px; min-height: 350px;">
+              <!-- Cards here -->
+            </div>
+          </div>
+
+          <!-- 3. Completed Column -->
+          <div class="kanban-column" id="kanban-completed" style="background: rgba(6, 182, 212, 0.02); border: 1px solid rgba(6, 182, 212, 0.15); border-radius: var(--border-radius-md); padding: 12px;">
+            <div class="kanban-column-header" style="display:flex; justify-content:space-between; margin-bottom: 15px; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 6px;">
+              <span style="font-weight: 700; color: var(--accent-cyan);"><i class="fa-solid fa-circle-check"></i> Quality Testing</span>
+              <span class="badge cyan" id="kanban-count-completed">0</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="cards-completed" style="display:flex; flex-direction:column; gap:10px; min-height: 350px;">
+              <!-- Cards here -->
+            </div>
+          </div>
+
+          <!-- 4. Delivered Column -->
+          <div class="kanban-column" id="kanban-delivered" style="background: rgba(16, 185, 129, 0.02); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: var(--border-radius-md); padding: 12px;">
+            <div class="kanban-column-header" style="display:flex; justify-content:space-between; margin-bottom: 15px; border-bottom: 2px solid var(--accent-green); padding-bottom: 6px;">
+              <span style="font-weight: 700; color: var(--accent-green);"><i class="fa-solid fa-box-open"></i> Delivered & Closed</span>
+              <span class="badge green" id="kanban-count-delivered">0</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="cards-delivered" style="display:flex; flex-direction:column; gap:10px; min-height: 350px;">
+              <!-- Cards here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW B: DETAILED SERVICE LEDGER (Hidden by default) -->
+        <div id="repairs-ledger-view" style="display: none;">
+          <div class="glass-card">
+            <div class="action-bar">
+              <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="repairs-search-input" placeholder="Search tickets by customer or diagnosis...">
+              </div>
+              <div class="filter-wrapper">
+                <select id="repairs-filter-status">
+                  <option value="">All Statuses</option>
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Delivered">Delivered</option>
+                </select>
+                <button class="btn btn-primary" id="open-add-ticket-btn"><i class="fa-solid fa-square-plus"></i> Register Repair</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Client</th>
+                    <th>Device</th>
+                    <th>Problem Log</th>
+                    <th>Estimated Cost</th>
+                    <th>Technician</th>
+                    <th>Status</th>
+                    <th>Closed Date</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="repairs-main-table">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 5: EMPLOYEES -->
+      <section class="view-section" id="view-employees">
+        <div class="glass-card">
+          <div class="action-bar">
+            <div class="search-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="employees-search-input" placeholder="Search staff members...">
+            </div>
+            <div class="filter-wrapper">
+              <select id="employees-filter-role">
+                <option value="">All Positions</option>
+                <option value="Admin">Admin</option>
+                <option value="Sales Executive">Sales Executive</option>
+                <option value="Technician">Technician</option>
+                <option value="Accountant">Accountant</option>
+                <option value="Store Manager">Store Manager</option>
+              </select>
+              <button class="btn btn-primary" id="open-add-emp-btn"><i class="fa-solid fa-user-plus"></i> Add Employee</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee ID</th>
+                  <th>Full Name</th>
+                  <th>Contact Details</th>
+                  <th>Email</th>
+                  <th>Position</th>
+                  <th>Base Salary</th>
+                  <th>Joining Date</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="employees-main-table">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 6: ATTENDANCE -->
+      <section class="view-section" id="view-attendance">
+        <div class="analytics-grid" style="grid-template-columns: 1fr 2fr;">
+          <!-- Left: Daily check-in controller -->
+          <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="section-header">
+                <h2><i class="fa-solid fa-business-time"></i> Terminal Clock-In</h2>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px;">
+                Clock in or out for the day. Your shift duration determines monthly base salary multipliers.
+              </p>
+              
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label for="clock-emp-select">Select Employee Account</label>
+                <select id="clock-emp-select" style="width: 100%;">
+                  <!-- Loaded dynamically -->
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+              <button class="btn btn-primary" id="clock-in-btn" style="padding: 14px;"><i class="fa-solid fa-right-to-bracket"></i> Register Clock-In</button>
+              <button class="btn btn-secondary" id="clock-out-btn" style="padding: 14px;"><i class="fa-solid fa-right-from-bracket"></i> Register Clock-Out</button>
+            </div>
+          </div>
+
+          <!-- Right: Daily status log -->
+          <div class="glass-card">
+            <div class="section-header">
+              <h2><i class="fa-solid fa-calendar-days"></i> Daily Logs</h2>
+              <div style="display: flex; gap: 8px;">
+                <input type="date" id="attendance-log-date" style="padding: 6px;">
+                <button class="btn btn-secondary" id="attendance-log-today-btn">Today</button>
+              </div>
+            </div>
+
+            <div class="table-container" style="max-height: 280px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Check In</th>
+                    <th>Check Out</th>
+                    <th>Status</th>
+                    <th style="text-align: right;" class="admin-only-cell">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-today-table">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly calendar grid view -->
+        <div class="glass-card" style="margin-top: 24px;">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-calendar-days"></i> Monthly Staff Overview</h2>
+            <select id="calendar-emp-select">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="attendance-calendar" id="attendance-calendar-grid">
+            <!-- Renders 35 blocks dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 7: SALARIES -->
+      <section class="view-section" id="view-salaries">
+        <!-- Monthly Payroll Generator Row -->
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-wallet"></i> Run Payroll Calculator</h2>
+          </div>
+          <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="form-group">
+              <label for="payroll-month-select">Payroll Month</label>
+              <input type="month" id="payroll-month-select" value="2026-05">
+            </div>
+            <div class="form-group">
+              <label for="payroll-emp-select">Employee</label>
+              <select id="payroll-emp-select">
+                <option value="ALL">All Staff</option>
+                <!-- Loaded dynamically -->
+              </select>
+            </div>
+            <div class="form-group" style="justify-content: flex-end;">
+              <button class="btn btn-primary" id="run-payroll-btn"><i class="fa-solid fa-calculator"></i> Calculate & Save Payouts</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="action-bar">
+            <h2>Payroll Slips History</h2>
+            <button class="btn btn-secondary" id="export-salaries-csv"><i class="fa-solid fa-file-invoice"></i> Export Slip Ledger</button>
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>ID</th>
+                  <th>Employee Name</th>
+                  <th>Position</th>
+                  <th>Base Pay (₹)</th>
+                  <th>Bonus (₹)</th>
+                  <th>Deductions (₹)</th>
+                  <th>Net Payout (₹)</th>
+                  <th>Payment Status</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="salaries-main-table">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 8: ANALYTICS -->
+      <section class="view-section" id="view-analytics">
+        <div class="ai-insight-banner" style="margin-bottom: 20px;">
+          <div class="ai-icon"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="ai-body" id="analytics-ai-prediction-banner">
+            <h4>A2A Business Advisor <span>Active Prediction</span></h4>
+            <p>Select variables to compute future growth metrics.</p>
+          </div>
+        </div>
+
+        <!-- 4 RATIO CARDS FOR CORPORATE VIABILITY -->
+        <div class="overview-grid" style="margin-bottom: 24px;">
+          <div class="glass-card stat-card green">
+            <div>
+              <div class="stat-label">Net Profit Margin</div>
+              <div class="stat-value" id="ratio-profit-margin">0%</div>
+              <div class="stat-desc">Target: 30%+</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-percent"></i></div>
+          </div>
+          <div class="glass-card stat-card cyan">
+            <div>
+              <div class="stat-label">Quick Assets Liquidity</div>
+              <div class="stat-value" id="ratio-liquidity">0.0x</div>
+              <div class="stat-desc">Target: > 1.5x</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+          </div>
+          <div class="glass-card stat-card purple">
+            <div>
+              <div class="stat-label">Repair Completion Rate</div>
+              <div class="stat-value" id="ratio-repair-rate">0%</div>
+              <div class="stat-desc">Target: 80%+</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          </div>
+          <div class="glass-card stat-card orange">
+            <div>
+              <div class="stat-label">Avg Staff Attendance</div>
+              <div class="stat-value" id="ratio-attendance">0%</div>
+              <div class="stat-desc">Target: 90%+</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+          </div>
+        </div>
+
+        <div class="analytics-grid" style="grid-template-columns: 1fr 1fr;">
+          <!-- Monthly Performance Comp -->
+          <div class="glass-card">
+            <div class="section-header">
+              <h2>Monthly Performance Comparison</h2>
+            </div>
+            <div class="chart-container" id="analytics-comparison-chart"></div>
+          </div>
+          
+          <!-- Productivity heatmap -->
+          <div class="glass-card">
+            <div class="section-header">
+              <h2>Operations Density Heatmap</h2>
+            </div>
+            <div class="chart-container" id="analytics-heatmap"></div>
+          </div>
+        </div>
+
+        <!-- Profit metrics card -->
+        <div class="glass-card" style="margin-top: 24px;">
+          <div class="section-header">
+            <h2>Ratio Breakdown Analysis</h2>
+          </div>
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+              <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-cyan);">Income Split By Channel</h3>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 15px;">
+                Direct product sales versus device repair labor invoices.
+              </p>
+              <div id="analytics-income-donut" style="height: 200px;"></div>
+            </div>
+            <div>
+              <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-purple);">Service Ticket Efficiency</h3>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 15px;">
+                Breakdown of active, closed, and outstanding maintenance work orders.
+              </p>
+              <div id="analytics-repairs-donut" style="height: 200px;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANELS SECTION 9: SETTINGS -->
+      <section class="view-section" id="view-settings">
+        <div class="analytics-grid" style="grid-template-columns: 1.5fr 1fr;">
+          <!-- Business settings -->
+          <div class="glass-card" style="display: flex; flex-direction: column; gap: 15px;">
+            <div class="section-header">
+              <h2>A2A Computers Profile Settings</h2>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="set-biz-name">Business Name</label>
+                <input type="text" id="set-biz-name" value="A2A Computers">
+              </div>
+              <div class="form-group">
+                <label for="set-biz-email">Support Email</label>
+                <input type="email" id="set-biz-email" value="support@a2acomputers.com">
+              </div>
+              <div class="form-group">
+                <label for="set-biz-phone">Office Hotline</label>
+                <input type="text" id="set-biz-phone" value="+91 98765 43210">
+              </div>
+              <div class="form-group">
+                <label for="set-biz-currency">Currency System</label>
+                <select id="set-biz-currency">
+                  <option value="INR">INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="set-biz-address">Physical Office Location</label>
+              <textarea id="set-biz-address" rows="2">Shop G-12, Cyber Heights, Sector 62, Noida, UP</textarea>
+            </div>
+            
+            <!-- Synthesized sound checkbox toggle -->
+            <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+              <input type="checkbox" id="set-sound-toggle" checked style="width: auto; cursor: pointer;">
+              <label for="set-sound-toggle" style="cursor: pointer; font-size: 0.9rem; user-select: none;">Enable UI Audio Synthesis (Web Audio API)</label>
+            </div>
+
+            <div style="margin-top: 5px;">
+              <button class="btn btn-primary" id="save-settings-btn"><i class="fa-solid fa-circle-check"></i> Save Business Settings</button>
+            </div>
+          </div>
+
+          <!-- Excel database sync and storage management -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Excel Database Sync Widget -->
+            <div class="glass-card" style="border-color: rgba(6, 182, 212, 0.25);">
+              <div class="section-header">
+                <h2><i class="fa-solid fa-file-excel"></i> Excel Database Sync</h2>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">
+                Operate A2A Computers via Excel. Export the database sheets, edit columns in Excel/Sheets, and upload to synchronize database records.
+              </p>
+              
+              <!-- Direct Excel File Sync buttons -->
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <button class="btn btn-secondary" id="db-excel-init-btn" onclick="app.initializeExcelDatabase()" style="padding: 10px 4px; font-size: 0.75rem;"><i class="fa-solid fa-plus-circle"></i> Init active Excel</button>
+                  <button class="btn btn-secondary" id="db-excel-link-btn" onclick="app.linkExcelDatabase()" style="padding: 10px 4px; font-size: 0.75rem;"><i class="fa-solid fa-link"></i> Link local Excel</button>
+                </div>
+                
+                <button class="btn btn-primary" id="db-excel-export-btn" onclick="window.Utils.exportDatabaseToExcel()" style="width: 100%;"><i class="fa-solid fa-cloud-arrow-down"></i> Export Backup Excel</button>
+                
+                <div style="border: 2px dashed var(--glass-border); border-radius: var(--border-radius-md); padding: 15px 10px; text-align: center; cursor: pointer; position: relative; transition: border-color 0.2s;" id="excel-drop-zone">
+                  <i class="fa-solid fa-file-arrow-up" style="font-size: 1.5rem; color: var(--accent-cyan); margin-bottom: 6px;"></i>
+                  <p style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;">Drag & Drop or Click to Sync Excel File</p>
+                  <input type="file" id="db-excel-import-file" accept=".xlsx, .xls" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="app.handleSettingsExcelUpload(this)">
+                </div>
+              </div>
+            </div>
+
+            <!-- Utility options -->
+            <div class="glass-card" style="display: flex; flex-direction: column; gap: 12px;">
+              <div class="section-header">
+                <h2>Database Tools</h2>
+              </div>
+              <button class="btn btn-secondary" id="seed-backup-btn" style="width: 100%;"><i class="fa-solid fa-database"></i> Backup Database (Console)</button>
+              <button class="btn btn-danger" id="factory-reset-btn" style="width: 100%;"><i class="fa-solid fa-triangle-exclamation"></i> Factory System Reset</button>
+              
+              <div class="glass-card" style="background: rgba(139, 92, 246, 0.03); border-color: rgba(139, 92, 246, 0.2); padding: 12px; font-size: 0.75rem; box-shadow: none; margin-top: 5px;">
+                <div style="font-weight: 700; color: var(--accent-purple); margin-bottom: 5px;"><i class="fa-solid fa-server"></i> Local Storage</div>
+                <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                  <span>Capacity Used:</span>
+                  <span id="storage-kb">0.00 KB</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS CONTAINER ================= -->
+
+  <!-- MODAL 1: ADD SALE -->
+  <div class="modal-overlay" id="modal-add-sale">
+    <div class="glass-card modal-card">
+      <div class="modal-header">
+        <h3 id="sale-modal-title">New Sale Register</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-add-sale')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="add-sale-form">
+        <input type="hidden" id="edit-sale-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="sale-prod-select">Select Product</label>
+            <select id="sale-prod-select" required>
+              <!-- Loaded dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sale-cust-name">Customer Full Name</label>
+            <input type="text" id="sale-cust-name" required placeholder="e.g. Rahul Sen">
+          </div>
+          <div class="form-group">
+            <label for="sale-qty">Quantity</label>
+            <input type="number" id="sale-qty" min="1" value="1" required>
+          </div>
+          <div class="form-group">
+            <label for="sale-pay-method">Payment Channel</label>
+            <select id="sale-pay-method" required>
+              <option value="Credit Card">Credit Card</option>
+              <option value="UPI">UPI</option>
+              <option value="Cash">Cash</option>
+              <option value="Net Banking">Net Banking</option>
+              <option value="Corporate Invoice">Corporate Invoice</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sale-date">Transaction Date</label>
+            <input type="date" id="sale-date" required>
+          </div>
+          <div class="form-group">
+            <label for="sale-warranty">Warranty Details</label>
+            <select id="sale-warranty" required>
+              <option value="Active (1 Year)">1 Year Standard</option>
+              <option value="Active (2 Years)">2 Year Extended</option>
+              <option value="Active (3 Years)">3 Year Premium</option>
+              <option value="Active (5 Years)">5 Year SSD Premium</option>
+              <option value="None">No Warranty</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-add-sale')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Registry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: ADD PRODUCT -->
+  <div class="modal-overlay" id="modal-add-prod">
+    <div class="glass-card modal-card">
+      <div class="modal-header">
+        <h3 id="prod-modal-title">Add Inventory Item</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-add-prod')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="add-prod-form">
+        <input type="hidden" id="edit-prod-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="prod-name">Product Name</label>
+            <input type="text" id="prod-name" required placeholder="e.g. Dell XPS 13 Core Ultra">
+          </div>
+          <div class="form-group">
+            <label for="prod-cat">Product Category</label>
+            <select id="prod-cat" required>
+              <option value="Laptops">Laptops</option>
+              <option value="Desktop PCs">Desktop PCs</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Spare Parts">Spare Parts</option>
+              <option value="Repair Components">Repair Components</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="prod-price">Retail Price (₹)</label>
+            <input type="number" id="prod-price" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="prod-stock">Initial Stock Level</label>
+            <input type="number" id="prod-stock" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="prod-min">Minimum Threshold Alert</label>
+            <input type="number" id="prod-min" min="0" required value="5">
+          </div>
+          <div class="form-group">
+            <label for="prod-supplier">Supplier Details</label>
+            <input type="text" id="prod-supplier" required placeholder="e.g. Ingram Micro India">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-add-prod')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ADD REPAIR TICKET -->
+  <div class="modal-overlay" id="modal-add-ticket">
+    <div class="glass-card modal-card">
+      <div class="modal-header">
+        <h3 id="ticket-modal-title">Register Service Ticket</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-add-ticket')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="add-ticket-form">
+        <input type="hidden" id="edit-ticket-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="ticket-client">Customer Name</label>
+            <input type="text" id="ticket-client" required placeholder="e.g. John Miller">
+          </div>
+          <div class="form-group">
+            <label for="ticket-dev">Device Model/Type</label>
+            <input type="text" id="ticket-dev" required placeholder="e.g. Asus ROG Zephyrus G14">
+          </div>
+          <div class="form-group">
+            <label for="ticket-cost">Estimated Labor/Part Price (₹)</label>
+            <input type="number" id="ticket-cost" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="ticket-tech">Assigned Staff Specialist</label>
+            <select id="ticket-tech" required>
+              <!-- Loaded dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ticket-status">Work Order Status</label>
+            <select id="ticket-status" required>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ticket-closed-date">Completion Date (optional)</label>
+            <input type="date" id="ticket-closed-date">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="ticket-log">Diagnostic Notes & Log Details</label>
+          <textarea id="ticket-log" rows="3" placeholder="Enter diagnostic steps or components swapped..." required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-add-ticket')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Record Ticket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: ADD EMPLOYEE -->
+  <div class="modal-overlay" id="modal-add-emp">
+    <div class="glass-card modal-card">
+      <div class="modal-header">
+        <h3 id="emp-modal-title">Employee Profile Registration</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-add-emp')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="add-emp-form">
+        <input type="hidden" id="edit-emp-id">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="emp-name">Full Name</label>
+            <input type="text" id="emp-name" required placeholder="e.g. Neeta Rao">
+          </div>
+          <div class="form-group">
+            <label for="emp-pos">Position Role</label>
+            <select id="emp-pos" required>
+              <option value="Admin">Admin</option>
+              <option value="Sales Executive">Sales Executive</option>
+              <option value="Technician">Technician</option>
+              <option value="Accountant">Accountant</option>
+              <option value="Store Manager">Store Manager</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="emp-phone">Phone Number</label>
+            <input type="text" id="emp-phone" required placeholder="+91 XXXXX XXXXX">
+          </div>
+          <div class="form-group">
+            <label for="emp-email">Email Address</label>
+            <input type="email" id="emp-email" required placeholder="username@a2acomputers.com">
+          </div>
+          <div class="form-group">
+            <label for="emp-salary">Base Monthly Salary (₹)</label>
+            <input type="number" id="emp-salary" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="emp-join">Joining Date</label>
+            <input type="date" id="emp-join" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-add-emp')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Core Script Dependencies -->
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="charts.js"></script>
+  <script src="ai.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

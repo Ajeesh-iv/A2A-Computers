@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A2A Computers - 80-Page Academic Project Report</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --primary-color: #0f172a;
+      --accent-color: #0284c7;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --bg-light: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.6;
+      color: var(--text-dark);
+      background: #e2e8f0;
+      padding: 20px 0;
+    }
+
+    /* Fixed top floating toolbar */
+    .print-toolbar {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(8px);
+      padding: 10px 18px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .print-btn {
+      background: #0ea5e9;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .print-btn:hover {
+      background: #0284c7;
+    }
+
+    /* Standard A4 Academic Page container */
+    .page-container {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 30px auto;
+      background: white;
+      padding: 25mm 20mm 25mm 25mm; /* Standard academic binding margins: Left 25mm, others 20mm */
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    /* Print-specific layout rules */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .print-toolbar {
+        display: none !important;
+      }
+      .page-container {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 25mm 20mm 20mm 25mm;
+        box-shadow: none;
+        page-break-after: always;
+      }
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Inter', sans-serif;
+      color: var(--primary-color);
+      margin-bottom: 12px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1.chapter-title {
+      font-size: 24pt;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 8px;
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+
+    h2.section-title {
+      font-size: 16pt;
+      margin-top: 25px;
+      margin-bottom: 12px;
+      color: #0369a1;
+      border-left: 4px solid #0284c7;
+      padding-left: 10px;
+    }
+
+    h3.sub-section-title {
+      font-size: 13pt;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      text-align: justify;
+      margin-bottom: 14px;
+      text-indent: 1.5em;
+    }
+
+    .no-indent {
+      text-indent: 0;
+    }
+
+    /* Academic Cover Page Styles */
+    .title-page {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 245mm;
+    }
+
+    .title-header h1 {
+      font-size: 26pt;
+      line-height: 1.2;
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .title-header h2 {
+      font-size: 16pt;
+      color: #0284c7;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 11pt;
+    }
+
+    .meta-table th, .meta-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    .meta-table th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+    }
+
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5pt;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+
+    pre {
+      padding: 14px;
+      overflow-x: auto;
+      margin: 15px 0;
+      line-height: 1.45;
+      text-indent: 0;
+    }
+
+    .ascii-art {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 14px;
+      border-radius: 8px;
+      line-height: 1.2;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 9pt;
+      font-weight: 700;
+      border-radius: 4px;
+    }
+    .badge-pass { background: #dcfce7; color: #166534; }
+
+    .signature-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 60px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11pt;
+      text-align: center;
+    }
+
+    .signature-box {
+      width: 45%;
+      border-top: 1px solid #1e293b;
+      padding-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Print Control Toolbar -->
+  <div class="print-toolbar">
+    <button class="print-btn" onclick="window.print()">
+      <i class="fa-solid fa-print"></i> Print Full 80-Page Report (PDF)
+    </button>
+  </div>
+
+  <!-- ================= COVER PAGE ================= -->
+  <div class="page-container">
+    <div class="title-page">
+      <div class="title-header">
+        <br>
+        <h1>A2A COMPUTERS</h1>
+        <h2>AUTOMATED BUSINESS MANAGEMENT & DIAGNOSTIC SUITE</h2>
+        <p class="no-indent" style="font-family: 'Inter', sans-serif; font-size: 11pt; color: #64748b; margin-top: 10px;">
+          A Unified Single-Page Architecture with Role-Based Access Control, Point of Sale Terminal, AI Hardware Diagnostics, Attendance Ledger, Automated Payroll & Bi-Directional Excel Synchronization
+        </p>
+      </div>
+
+      <div style="margin: 35px 0;">
+        <p class="no-indent" style="text-align: center; font-style: italic; font-size: 13pt;">
+          A PROJECT REPORT<br>
+          <span style="font-size: 11pt; font-style: normal; color: #475569;">Submitted in partial fulfillment of the requirements for the award of the degree of</span><br>
+          <strong style="font-family: 'Inter', sans-serif; font-size: 13pt; color: #0f172a;">BACHELOR OF TECHNOLOGY / COMPUTER APPLICATIONS</strong><br>
+          <span style="font-size: 11pt; font-style: normal;">IN</span><br>
+          <strong style="font-family: 'Inter', sans-serif; font-size: 12pt; color: #0284c7;">COMPUTER SCIENCE AND ENGINEERING / INFORMATION TECHNOLOGY</strong>
+        </p>
+      </div>
+
+      <div>
+        <p class="no-indent" style="text-align: center; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11pt; margin-bottom: 10px;">
+          SUBMITTED BY:
+        </p>
+        <table class="meta-table" style="max-width: 550px; margin: 0 auto;">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Registration / Roll Number</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>AJEESH IV</strong></td>
+              <td><code>24083151802111204</code></td>
+            </tr>
+            <tr>
+              <td><strong>AKISH MS</strong></td>
+              <td><code>24083151802111206</code></td>
+            </tr>
+            <tr>
+              <td><strong>ABETH NEGO A</strong></td>
+              <td><code>24083151802111201</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 40px; border-top: 1px solid #cbd5e1; padding-top: 20px;">
+        <p class="no-indent" style="text-align: center; font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 700; color: #0f172a;">
+          DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING<br>
+          FACULTY OF ENGINEERING AND TECHNOLOGY<br>
+          <span style="font-size: 10pt; font-weight: 500; color: #64748b;">ACADEMIC YEAR: 2025 – 2026</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BONAFIDE CERTIFICATE ================= -->
+  <div class="page-container">
+    <h1 class="chapter-title" style="text-align: center; border-bottom: none;">BONAFIDE CERTIFICATE</h1>
+    <br><br>
+    <p>
+      Certified that this project report titled <strong>"A2A COMPUTERS: AUTOMATED BUSINESS MANAGEMENT & DIAGNOSTIC SUITE"</strong> is the bonafide work of <strong>AJEESH IV (Reg. No: 24083151802111204)</strong>, <strong>AKISH MS (Reg. No: 24083151802111206)</strong>, and <strong>ABETH NEGO A (Reg. No: 24083151802111201)</strong> who carried out the research, system architecture, engineering, and empirical validation under my direct technical supervision.
+    </p>
+    <p>
+      Certified further that to the best of my knowledge and belief, the software artifacts and documentation presented herein do not form part of any other thesis or dissertation on the basis of which any degree, diploma, or academic award has previously been conferred to these or any other candidates.
+    </p>
+
+    <br><br><br><br>
+    <div class="signature-container">
+      <div class="signature-box">
+        <strong>SUPERVISOR / PROJECT GUIDE</strong><br>
+        Department of Computer Science & Engineering
+      </div>
+      <div class="signature-box">
+        <strong>HEAD OF THE DEPARTMENT</strong><br>
+        Department of Computer Science & Engineering
+      </div>
+    </div>
+
+    <br><br><br><br>
+    <p class="no-indent" style="font-family: 'Inter', sans-serif; font-size: 11pt;">
+      Submitted for the University Project Viva-Voce examination conducted on: _______________________
+    </p>
+    <br><br>
+    <div class="signature-container">
+      <div class="signature-box">
+        <strong>INTERNAL EXAMINER</strong>
+      </div>
+      <div class="signature-box">
+        <strong>EXTERNAL EXAMINER</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EXECUTIVE ABSTRACT ================= -->
+  <div class="page-container">
+    <h1 class="chapter-title" style="text-align: center;">EXECUTIVE ABSTRACT</h1>
+    <p>
+      In the contemporary information technology retail and hardware servicing sector, modern computer establishments face severe operational bottlenecks arising from fragmented and disjointed operational silos. Typically, retail sales, physical inventory tracking, hardware repair ticketing, technician allocation, and workforce administration are managed through disconnected spreadsheets, manual paper registers, or isolated single-purpose commercial point-of-sale applications. This structural fragmentation leads to persistent inventory discrepancies, billing errors, delayed repair turnaround times, lack of real-time diagnostic knowledge transfer, untracked employee labor costs, and a near-total absence of predictive business intelligence.
+    </p>
+    <p>
+      To decisively address these critical industry challenges, this project presents the <strong>A2A Computers Automated Business Management & Diagnostic Suite</strong>—a unified, high-performance, enterprise-grade web application engineered specifically for IT sales centers, hardware repair labs, and commercial computer retail hubs. The suite integrates eight comprehensive operational subsystems into a cohesive, responsive single-page application (SPA) designed with a state-of-the-art dark glassmorphic user interface.
+    </p>
+    <p>
+      The platform incorporates role-based access control (RBAC) supporting specialized permissions for Admins, Store Managers, Technicians, Sales Executives, and Accountants; an ultra-fast Point of Sale (POS) checkout terminal featuring automated CGST+SGST 18% tax calculation, multi-channel payment filtering, and thermal invoice printing; client-side Code-128 SVG barcode generation; an embedded AI hardware diagnostic expert engine; an employee attendance and payroll management engine; zero-dependency SVG vector analytics charts with Ordinary Least Squares (OLS) linear regression sales forecasting; and bi-directional binary synchronization with Microsoft Excel (<code>.xlsx</code>) workbooks via the modern HTML5 File System Access API and SheetJS.
+    </p>
+    <p>
+      The full 80-page documentation covering all requirements, UML designs, ER models, data dictionaries, algorithms, test cases, and source code listings is rendered in the companion project report document <code>A2A_COMPUTERS_80_PAGE_PROJECT_REPORT.md</code>.
+    </p>
+  </div>
+
+</body>
+</html>
